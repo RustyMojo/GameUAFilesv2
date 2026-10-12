@@ -1,0 +1,212 @@
+Ultimate Apocalypse - Installer Guide
+
+This launcher installs Ultimate Apocalypse, keeps it updated, and launches the game.
+It replaces the old manual install process.
+
+
+WHAT YOU NEED
+
+- Dawn of War: Definitive Edition on Steam or GOG (a fresh install is recommended), or
+  Soulstorm.
+- Run the base game at least once before installing.
+- An internet connection - the mod is downloaded, not bundled.
+- Free disk space. The launcher warns if you have less than 50 GB, but this is a
+  recommendation, not a requirement - you can continue past the warning.
+- Git. You do NOT need to install this yourself; the launcher installs it on first run.
+
+
+STEP 1 - EXTRACT THE LAUNCHER
+
+Extract the whole launcher folder somewhere and keep the files together. The .exe needs
+the lib, resources and .7z files sitting next to it.
+
+You can put it anywhere - your desktop, a tools folder, or inside the game directory.
+It does not need to live in the game folder any more. The launcher remembers your
+settings separately, so they survive if you move or replace it.
+
+
+STEP 2 - RUN IT
+
+Windows:
+  Double-click ua-launcher.exe.
+
+  The first time, Windows SmartScreen may say "Windows protected your PC". Click
+  "More info", then "Run anyway". The launcher is not code-signed, which is all that
+  warning means.
+
+  You do not normally need to run it as administrator. Steam gives every user full
+  access to its own folder, including C:\Program Files (x86)\Steam. Only run as
+  administrator if the launcher reports that the game folder is not writable, and
+  then do so every time, because files created while elevated can later block a
+  normal run with a "dubious ownership" error.
+
+Linux:
+  Open a terminal in the launcher folder and run:
+      ./ua-launcher
+
+  No sudo needed for the install itself, as the Steam folder belongs to you. You may be
+  asked for your password once if git is missing and has to be installed.
+
+
+STEP 3 - FIRST-RUN GIT SETUP
+
+If git is not already on your system, the launcher provides it:
+
+  Windows - the launcher ships its own copy of git and unpacks it the first time it
+            runs. This takes a few seconds, shows no prompt and needs no admin rights.
+            If you already have Git for Windows installed, that copy is used instead
+            and is never touched.
+
+  Linux   - you are prompted for your password so the package manager can install git.
+            If you would rather do it yourself:
+                sudo apt install git      (Debian, Ubuntu, Mint, Pop!_OS)
+                sudo dnf install git      (Fedora)
+                sudo pacman -S git        (Arch, Manjaro)
+            Steam Deck: SteamOS cannot install packages until you run
+            "sudo steamos-readonly disable" and "sudo pacman-key --init" in Desktop
+            Mode, and a SteamOS update removes git again. Install git before running
+            the launcher there.
+
+
+STEP 4 - CHECK THE FOLDER
+
+The launcher tries to find your Dawn of War folder automatically and shows it in the
+INSTALLATION FOLDER box.
+
+  "path found"        - green, it found the game, nothing to do.
+  "path not found"    - red, click Browse and pick the game folder yourself.
+
+The correct folder is the one containing W40k.exe (W40k_gog.exe on GOG). To find it:
+right-click the game in Steam, then Manage, then Browse local files. In GOG Galaxy, open
+the game, click the settings icon next to Play, then Manage installation, then Show folder.
+
+
+STEP 5 - PICK A VERSION
+
+Under MOD VERSION choose which game you are installing for:
+
+  PUBLIC_DE         - Dawn of War: Definitive Edition
+
+This is the only choice on a normal launcher. Tester launchers list other branches
+(including PUBLIC_SOULSTORM); the choice also decides which game the LAUNCH button
+starts, so set it before installing.
+
+
+STEP 6 - INSTALL
+
+Click INSTALL. The status line and progress bar show what is happening.
+
+The first install downloads a lot of data and usually takes 10-20 minutes. When it
+finishes:
+
+  - the status reads "Install Complete"
+  - the INSTALL button changes to "Fetch"
+  - the LAUNCH button becomes available
+
+Leave the launcher open until it finishes. Closing it mid-install leaves a partial
+download, though the next install cleans that up automatically before retrying.
+
+
+STEP 7 - PLAY
+
+Click LAUNCH. Steam shows a small popup about custom launch options - click Continue.
+On GOG there is no popup; the launcher starts the game directly. The game boots straight
+into the Ultimate Apocalypse menu.
+
+You may briefly see a console window mentioning BugSplat64.dll (Code: 126). This is
+usually harmless. If the game actually crashes to the BugSplat reporter, see
+TROUBLESHOOTING below.
+
+
+KEEPING IT UPDATED
+
+Open the launcher any time and click Fetch. It checks for updates on startup and tells
+you if any are waiting.
+
+Fetch also repairs your install. It resets every mod file back to the official version,
+so if something has been edited, corrupted or deleted, Fetch puts it right. This is the
+first thing to try when the mod misbehaves.
+
+
+UNINSTALLING
+
+Use ua-uninstall.exe (or the Uninstall button at the bottom of the launcher).
+
+It lists everything it is going to delete, with sizes, before touching anything. You can
+choose to remove:
+
+  - the mod files in your game folder
+  - the original W40k.exe (or W40k_gog.exe), restored from the backup made when you
+    installed
+  - the launcher's own saved settings
+
+Anything the launcher did not install is left alone, so the base game stays playable.
+
+If you first installed with an older version of the launcher, there may be no backup of
+the original W40k.exe. The uninstaller will tell you if so. In that case, after
+uninstalling, right-click the game in Steam, then Properties, then Installed Files, then
+Verify integrity of game files. On GOG, use Manage installation, then Verify / Repair in
+GOG Galaxy.
+
+
+PATCHING THE GAME ON ITS OWN
+
+Use ua-patch.exe when the mod is installed but the game has stopped loading it and
+you do not want to open the launcher. The launcher itself repairs the same thing when
+you press LAUNCH or Fetch. It happens in two situations:
+
+  - you verified the game files in Steam, which puts the original W40k.exe back
+  - Steam updated the game, which replaces W40k.exe with the new version
+
+In both cases the mod files are still there and the game still runs; it just runs
+without the AI extension. ua-patch.exe fixes that in a couple of seconds without
+re-downloading anything.
+
+It shows you what is in your game folder - which game version you have, whether it is
+patched, and whether the AI extension files are present - and then:
+
+  PATCH GAME        patches your own W40k.exe (W40k_gog.exe on GOG) and puts back any
+                    missing AI extension files. Your original is copied to
+                    W40k.exe.ua-backup (or W40k_gog.exe.ua-backup) first.
+  Restore original  puts that backup back, returning the game to stock.
+
+Running Fetch in the launcher does the same patching, so you only need this if you do
+not want to update the mod at the same time.
+
+Run it as administrator if your game is under C:\Program Files (x86), same as the
+launcher.
+
+
+TROUBLESHOOTING
+
+The game starts but the mod AI does nothing
+  Your game executable has been replaced, usually by a game update or by verifying the
+  game files. The launcher reports this when it opens and repairs it when you press
+  LAUNCH or Fetch. If it still happens, run ua-patch.exe and click PATCH GAME.
+
+"BugSplat64.dll (Code: 126)" and the game crashes
+  Usually Windows Defender has quarantined a mod file. Add the game folder to your
+  exclusions:
+      Windows Security > Virus & threat protection > Manage settings > Exclusions
+      > Add or remove exclusions > add your Dawn of War folder
+  Then reopen the launcher, click Fetch, and launch again.
+
+"Access denied" or "the access token in this build is expired"
+  The installer's built-in access has expired. Download the current installer release -
+  this is not something you can fix locally.
+
+The install fails partway through
+  Click Install again. The launcher clears the partial download and retries on its own.
+  If it keeps failing, check your free disk space and your connection.
+
+The game will not start from LAUNCH
+  On Steam, make sure Steam is running. Either way, you need to have launched the base
+  game at least once. Check that MOD VERSION matches the game you installed for.
+
+Nothing else worked
+  Run Fetch to restore all mod files. If that fails, uninstall and reinstall.
+  When asking for help, say which game you installed for, which MOD VERSION you picked,
+  and what the status line said when it failed.
+
+
+Enjoy.

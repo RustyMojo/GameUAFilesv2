@@ -1,0 +1,224 @@
+v0.43
+-the installer now works with the GOG version of the game
+        *it used to look only for the Steam executable (W40k.exe), so on GOG
+         it dropped a Steam copy into your folder and left your real game
+         (W40k_gog.exe) unpatched, which meant the mod AI never loaded
+        *your own W40k_gog.exe is now patched, and backed up first as
+         W40k_gog.exe.ua-backup
+        *the launcher finds a GOG install on its own, and the launch button
+         starts the game directly instead of going through Steam
+        *the patcher and the uninstaller handle GOG the same way
+        *if you are on GOG and installed with an older version, there may be a
+         spare W40k.exe in your game folder. It does nothing, and the
+         uninstaller now removes it
+-a download that drops or stalls is now retried, with a pause
+        *the installer used to try exactly twice, back to back, so a brief
+         connection blip failed both attempts in the same second; it now makes
+         up to four attempts with 5, 15 and 30 second pauses between them, for
+         the first install and for Fetch alike
+        *only connection problems are retried; a full disk or a locked file is
+         reported straight away rather than throwing the download away
+        *a transfer that stalls completely is given up after 90 seconds and
+         retried, instead of sitting on "Downloading" for ever
+        *the download is made over HTTP/1.1, which avoids a known cause of
+         "early EOF" failures on unstable connections
+        *a drop near the end of the download still means the next attempt
+         starts over, because git cannot resume a half-received download
+-the launcher no longer downloads every development branch of the mod
+        *a normal install used to fetch the latest commit of all ~94 branches on
+         every start and every Fetch, even though only PUBLIC_DE is ever offered
+         to it; it now fetches just the branch you are on (testers still get
+         every branch, so their version list keeps working)
+        *existing installs are tidied up on their next Fetch; the disk space the
+         extra branches already took is not reclaimed automatically
+-the update check when the launcher opens is now almost free
+        *it used to download the update in the background just to say one was
+         available, which on a poor connection was the download most likely to
+         drop; it now asks GitHub for one commit id and compares, and the real
+         download happens only when you press Fetch
+-the launcher now notices when your game executable has lost the mod loader
+        *a Steam update or "verify integrity of game files" puts the stock
+         W40k.exe back; the launcher used to say "Up to Date" while the mod AI
+         silently did nothing
+        *the startup check now reports it, and LAUNCH repairs it before starting
+         the game, so you no longer need ua-patch.exe for this case
+-the launcher checks that the folder actually contains the game before installing
+        *any existing folder used to be accepted, and received the full download
+         plus a copy of the Steam executable
+        *a Soulstorm install no longer receives a Definitive Edition W40k.exe
+-fixed Fetch failing with "shallow file has changed since we read it"
+        *pressing Fetch while the startup check was still running started two
+         downloads on the same files; Fetch now waits for the check to finish
+        *opening a second copy of the launcher now tells you one is already open
+         instead of letting the two fight over the mod files
+-a dropped download is now reported as a dropped download
+        *it used to be blamed on your firewall, or, when the message happened to
+         contain "401" or "403", on an expired installer key
+-the footer warns when the launcher's built-in access is about to expire
+        *that is the one failure that would hit every player on the same day
+-Fetch on mod files that git can no longer open now reinstalls them instead of
+ stopping on a raw error
+-the uninstaller now also removes old launcher logs
+-smaller fixes: the bundled git is no longer re-unpacked after every launcher
+ update; a folder path typed by hand is checked as you type; ua-patch and
+ ua-uninstall print their own names in --help
+
+v0.42
+-the launcher now tells you when a newer version is out
+        *the note appears when you open the launcher, and after a fetch
+        *clicking it opens the downloads page
+        *your launcher carries on working exactly as it did - there is nothing
+         you have to do, and nothing is downloaded or changed for you
+
+v0.41
+-error reports are now saved somewhere you can actually find them
+        *they used to go to the Windows temp folder, which cleanup tools wipe,
+         so the report was often already gone by the time anyone asked for it
+        *they now sit in AppData\Local\UA-Launcher\logs, and the error message
+         has an "Open log folder" button so you never have to type the path
+        *the previous run is kept as well, so trying again does not overwrite
+         the failure you were about to report
+-a report now explains the failure instead of just naming it
+        *it records what the launcher was doing, step by step, up to the moment
+         it stopped
+        *and the state of your setup: free space, your mod version, whether the
+         game files are locked, whether W40k.exe is patched, which git is in use
+        *what git itself reported is written out in full instead of cut short
+-reports no longer contain folder paths from the PC the installer was built on
+        *every line of every report used to name folders from the build machine,
+         which meant nothing on your computer and only made the report harder
+         to read
+        *your own Windows username is replaced with ~ as well, so a report is
+         safe to post in a support thread exactly as it is
+-the patcher and the uninstaller now write reports too, not just the launcher
+        *a failed patch, or a file the uninstaller could not delete, used to
+         leave nothing behind to look at
+        *the uninstaller now records every file it could not remove, rather
+         than only the handful that fit in the message box
+-the launcher no longer closes without a word if it fails to start
+
+v0.39
+-the mod now patches your own copy of the game instead of replacing it
+        *every install used to overwrite W40k.exe with a copy built in June,
+         quietly putting your game back two updates behind Steam
+        *your game now stays on whatever version Steam gave you, and a Relic
+         update no longer drags you backwards
+        *if the patch cannot be applied for any reason the bundled copy is
+         used instead, so you can always still play
+-new ua-patch.exe: patches the game on its own, without an install or update
+        *for the two times your game stops loading the mod AI - after Steam
+         verifies the game files, and after a Relic update
+        *it patches your own W40k.exe the same way the launcher does, backs
+         the original up first, and can put it back again
+        *also replaces the AI extension files if they have gone missing
+        *no download, no git, no login - point it at your game folder
+-fixed the launcher re-applying the lua patch on every single Fetch
+        *it could never tell an already-patched game from a fresh one, so it
+         rewrote W40k.exe and the AI files every time and announced a lua
+         upgrade that had already happened
+        *Fetch on an up-to-date install is now noticeably quicker
+-the backup of your original W40k.exe is now kept up to date
+        *uninstalling used to hand back whichever version you had when you
+         first installed, rather than the one you actually have
+-install and update failures now say what actually went wrong
+        *any failed download used to be blamed on your folder permissions,
+         sending people to change ownership settings that were never the
+         cause of it
+        *the message now names the real reason - a dropped connection, a
+         full drive, a locked file, an expired key - and passes on what git
+         itself reported
+-the download is around 25MB smaller
+
+v0.38
+-git now comes with the installer instead of being installed onto your PC
+        *no more "Git not found - please wait while it installs" wait, no
+         admin prompt, and no restart needed before the launcher will work
+        *fixes installs ending on "choco.exe - CLR error: 80004005", which
+         hits any PC with a damaged .NET Framework
+        *fixes PCs that have no winget at all, which previously had no way
+         through except installing git by hand
+        *if you already have Git installed it is still used and is never
+         touched - the bundled copy is only a fallback
+        *the uninstaller removes the bundled copy along with everything else
+-fixed installs stopping on "detected dubious ownership" when Windows thinks
+        the game folder belongs to a different account
+        *most often a drive carried over from an older Windows install, or a
+         folder Steam created while running as administrator
+        *if it somehow still happens the launcher now explains it in plain
+         English instead of showing the raw git command
+-command windows no longer flash up on screen while the launcher starts
+
+v0.37
+-install errors now say what actually went wrong, instead of a cut-off git command
+        *the reason git gave is shown first, and the full details are written to
+        a log file the error message points you at
+-fixed installs failing on long file paths inside deeply nested game folders
+        *hits the default Steam folder hardest, where the path eats a third of
+        what Windows allows before the mod adds a single folder of its own
+-the launcher now checks your mod version still exists before downloading, and
+        tells you which versions are available if it has been renamed or retired
+-a mod file held open by another program is now named in the error message
+        *previously the download just failed afterwards with no visible reason
+        *the uninstaller no longer reports a folder as removed when it could not delete it
+
+v0.36
+-fixed "unable to reach repository" on the first launch after updating the installer
+        *the startup check now refreshes its connection details the same way Fetch does
+-startup now says whether it is an access problem, a connection problem or damaged
+        files, instead of one generic message for all three
+-added a full uninstaller (ua-uninstall) plus an Uninstall button in the launcher
+        *shows every file it will remove, with sizes, before touching anything
+-the installer now backs up your original W40k.exe before patching it, so
+        uninstalling restores the base game instead of needing a Steam file verify
+-launcher now runs on Linux and macOS from the same build as Windows
+        *finds Steam across native, flatpak and snap installs, and extra library drives
+        *installs git through apt/dnf/pacman/zypper as well as winget
+-mod repo is now private-only - the Private Access token prompt is gone,
+        access ships with the installer
+-settings moved out of the launcher folder so it works from read-only locations
+        *existing installs migrate automatically, nothing to redo
+-access tokens are stripped from all error messages and logs
+-fixed the launch button staying clickable after a failed install
+
+v0.34
+-fixed lua 5.1.5 after relic update broke it
+-fixed fx not showing up in game
+
+v0.33
+-fixed Soulstorm launch parameters
+-added changelog button to show changelogs over time of installer
+-fixed git install loop in windows
+-added check if user has at least 50GB of storage + warning
+-added prompt on first launch with install instructions
+-added clean check if install initially fails
+-add check for lua 5.1.5 on launch after config.txt exists, if it doesn't upgrade lua
+
+v0.32 "debug"
+-fixed various errors to report accurately
+
+v0.32 Open Beta
+-removed ability for launcher to replace git key to retain confidential login information
+-first public release of OPEN BETA
+
+v0.2 -> v0.32 Critical Beta + Closed Beta
+-updated image handling for codevs testing,windows, and linux to be compatible: was preventing launching
+-linux version now opens from an improved pyinstaller command
+-added two checks for entry ending in "/" one on start and one on install/update
+-added expiration date for when token expires to hidden tester launcher
+-improved "Fetch" button to not only update but restore branch then check for updates
+        *this makes it if any local files are damaged or changed. pressing the button fix it
+-removed on-launch auto-update to just an indicator if there are undownloaded changes
+-removed "UA/" in install allowing it to be seen by SS/DE in directory
+-added extra catch for "/" catcher if entry is empty exception
+-added confirmation if registry key found
+-moved entry check for "/" at end of application run setup
+-lowered registry key read permission requirement to just reading
+-added prints in terminal for testing which game launcher is launching
+-fixed winreg handling, didn't work in v0.1
+-fixed - install button doesnt change to fetch
+-fixed - zip file not unpacked
+-added more install indicitors to help identify when install is done
+{e} combobox doesnt update on fetch for branch list - added branchlist_refresh() function at end of fetch
+{e} soulstorm installation is wrong - fixed and seperated module payloads
+{e} config file doesnt create when updating if missing - added failsafes
+{e} windows launcher doesnt change button from install to fetch when files are there - related to config file missing error
